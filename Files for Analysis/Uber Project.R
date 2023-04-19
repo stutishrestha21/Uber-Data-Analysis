@@ -6,10 +6,11 @@ library(lubridate)
 library(shiny)    
 library(ggplot2)
 library(scales)
+library(writexl)
 
 rm(list=ls())
 
-setwd("~/Desktop/DATA/Data 332/UberProject")
+setwd("~/Desktop/DATA/Data 332/UberProject/Files for Analysis")
 
 April_table <- read.csv('uber-raw-data-apr14.csv') #read april excel
 May_table <- read.csv('uber-raw-data-may14.csv') #read may excel
@@ -149,6 +150,64 @@ ggplot(trip_base_day, aes(Base, dayofweek, fill= Total))+
   geom_tile(color="white")+
   scale_fill_gradient(low="deeppink", high="deeppink4")+
   ggtitle("Heat Map by Month and Day")
+
+#------Convert the Pivot table to excel for Shinny manipulations------------
+
+#1. Pivot table to show Trips by the hour
+trip_hour <- combined_table%>%
+  group_by(Hour)%>%
+  dplyr::summarise(Total=n())
+
+write_xlsx(trip_hour, path="~/Desktop/DATA/Data 332/UberProject/Files for Shinny/trip_per_hour.xlsx")
+
+#2. Trips by Hour and Month
+trip_hour_month<- combined_table%>%
+  group_by(Month, Hour)%>%
+  dplyr::summarise(Total=n())
+
+write_xlsx(trip_hour_month,path = "~/Desktop/DATA/Data 332/UberProject/Files for Shinny/trip_by_hour_month.xlsx")
+
+#3. Table of trips taken during every day of the month
+trip_dayofweek_Month <- combined_table%>%
+  group_by(Day)%>%
+  dplyr::summarise(Total=n())
+
+write_xlsx(trip_dayofweek_Month,path = "~/Desktop/DATA/Data 332/UberProject/Files for Shinny/trip_by_dayofWeek_month.xlsx")
+
+#4. Trips by month
+trip_month <- combined_table%>%
+  group_by(Month)%>%
+  dplyr::summarise(Total=n())
+
+write_xlsx(trip_month,path = "~/Desktop/DATA/Data 332/UberProject/Files for Shinny/trip_by_month.xlsx")
+
+#5. Trips by Bases and Month 
+trip_base_month <- combined_table%>%
+  group_by(Base, Month)%>%
+  dplyr::summarise(Total=n())
+write_xlsx(trip_base_month,path = "~/Desktop/DATA/Data 332/UberProject/Files for Shinny/trip_by_base_month.xlsx")
+
+#6. Trips by day and hour
+trip_day_hour <- combined_table %>%
+  group_by(Day, Hour) %>%
+  dplyr::summarize(Total = n())
+write_xlsx(trip_day_hour,path = "~/Desktop/DATA/Data 332/UberProject/Files for Shinny/trip_by_day_hour.xlsx")
+
+#7. Trips by month and day
+trip_month_day <- combined_table %>%
+  group_by(Month, Day) %>%
+  dplyr::summarize(Total = n())
+write_xlsx(trip_month_day,path = "~/Desktop/DATA/Data 332/UberProject/Files for Shinny/trip_by_month_day.xlsx")
+
+
+#8. Trips by Bases and Day of Week
+trip_base_day <- combined_table %>%
+  group_by(Base, dayofweek) %>%
+  dplyr::summarize(Total = n())
+write_xlsx(trip_base_day,path = "~/Desktop/DATA/Data 332/UberProject/Files for Shinny/trip_by_base_day.xlsx")
+
+
+
 
 
 
