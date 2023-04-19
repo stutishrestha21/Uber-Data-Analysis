@@ -9,7 +9,7 @@ library(scales)
 
 rm(list=ls())
 
-setwd("~/Desktop/DATA/Data 332/Project 3")
+setwd("~/Desktop/DATA/Data 332/UberProject")
 
 April_table <- read.csv('uber-raw-data-apr14.csv') #read april excel
 May_table <- read.csv('uber-raw-data-may14.csv') #read may excel
