@@ -18,22 +18,19 @@ data_df6 <- read_excel("trip_by_month_day.xlsx")
 data_df7 <- read_excel("trip_by_month.xlsx")
 data_df8 <- read_excel("trip_per_hour.xlsx")
 
-
-column_names<-colnames(data_df1) #for input selections
+column_names<-colnames(data_df1) #for input selections of first df table
 
 #Define ui to draw a histogram
 
 ui <- fluidPage(
   # App title ----
-  titlePanel(title = "March Madness 2023 Dataset"),
+  titlePanel(title = "Trip According to Base and Day of Week"),
   fluidRow(
     column(2,
-           selectInput('X', 'Choose Seed',column_names,column_names[2]),
-           selectInput('Y', 'Choose Kenpom Adjusted Efficiency',column_names,column_names[6]),
-           selectInput('Z', 'Choose Barttorvik Adjusted Efficiency',column_names,column_names[10]),
-           selectInput('Splitby', 'Split By', column_names,column_names[3])
+           selectInput('X', 'Choose Base',column_names,column_names[1]),
+           selectInput('Y', 'Choose Day of Week',column_names,column_names[2]),
     ),
-    column(4,plotOutput('plotMarchMadness')),
+    column(4,plotOutput('plotTrips')),
     column(6,DT::dataTableOutput("table_01", width = "100%"))
   )
 )
@@ -41,13 +38,17 @@ ui <- fluidPage(
 
 server<-function(input,output){
   
-  output$plotMarchMadness <- renderPlot({
+  output$plotTrips <- renderPlot({
     
-    ggplot(data_df, aes_string(x=input$X, y= input$Y, z= input$Z))+
+    ggplot(data_df1, aes_string(x=input$X, y= input$Y))+
       geom_point()+
       geom_smooth()
   })
-  output$table_01<-DT::renderDataTable(data_df[,c(input$X,input$Y,input$Z, input$Splitby)],options = list(pageLength = 4))
+  output$table_01<-DT::renderDataTable({
+    data_df1%>%
+      select(input$X, input$Y)%>%
+      slice(1:4)},
+    options= list(pageLength=))
   
 }
 
