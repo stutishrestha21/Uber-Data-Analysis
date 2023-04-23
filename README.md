@@ -104,6 +104,6 @@ In this project I am going to analyse the data of Uber to see their pattern acco
 
 [github](https://github.com/stutishrestha21/UberProject)
 
-[shinnyApp](http://stutishrestha21.shinyapps.io/ShinnyUber)
+[shinnyApp](https://stutishrestha21.shinyapps.io/ShinnyUber/)
 
 
