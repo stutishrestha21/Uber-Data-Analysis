@@ -1,0 +1,14 @@
+name: Shinny
+title: Shinny
+username:
+account: stutishrestha
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 8924756
+bundleId: 7123002
+url: https://stutishrestha.shinyapps.io/Shinny/
+when: 1682213129.34038
+lastSyncTime: 1682213129.34042
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: LICENSE|README.md|Uber Project.R|uber-raw-data-apr14.csv|uber-raw-data-aug14.csv|uber-raw-data-jul14.csv|uber-raw-data-jun14.csv|uber-raw-data-may14.csv|uber-raw-data-sep14.csv

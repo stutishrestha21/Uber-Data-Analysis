@@ -1,63 +1,66 @@
-library(dplyr)
+#import necessary packages
 library(tidyverse)
-library(readxl)
 library(tidyr)
 library(lubridate)
-library(shiny)    
 library(ggplot2)
 library(scales)
-library(writexl)
+library(data.table)
+library(ggthemes)
+library(dplyr)
+library(DT)
+library(leaflet)
+library(leaflet.extras)
 
+
+#clear the environment
 rm(list=ls())
 
+#setting the working directly in the folder
 setwd("~/Desktop/DATA/Data 332/UberProject/Files for Analysis")
 
-April_table <- read.csv('uber-raw-data-apr14.csv') #read april excel
-May_table <- read.csv('uber-raw-data-may14.csv') #read may excel
-June_table <- read.csv('uber-raw-data-jun14.csv') #read june excel
-July_table <- read.csv('uber-raw-data-jul14.csv') #read july excel
-August_table <- read.csv('uber-raw-data-aug14.csv') #read august excel
-Sept_table <- read.csv('uber-raw-data-sep14.csv') #read september excel
+#reading the data using fread for faster processing
+df_april <- fread('uber-raw-data-apr14.csv', data.table = F) #read april excel
+df_may <- fread('uber-raw-data-may14.csv', data.table = F) #read may excel
+df_june <- fread('uber-raw-data-jun14.csv', data.table = F) #read june excel
+df_july <- fread('uber-raw-data-jul14.csv', data.table = F) #read july excel
+df_aug <- fread('uber-raw-data-aug14.csv', data.table = F) #read august excel
+df_sep <- fread('uber-raw-data-sep14.csv', data.table = F) #read september excel
 
-combined_table <-rbind(April_table, May_table, June_table, July_table, August_table,Sept_table)%>% #Binding all months data
-  rename(Date_Time = Date.Time) #rename date so that date and time could be seperated
 
-#formatting date
-combined_table$Date <- as.POSIXct(paste(combined_table$Date_Time), format = "%m/%d/%Y")
+#combing all the data in one table
+df_merged <-rbind(df_april, df_may, df_june, df_july, df_aug,df_sep) %>%
+  rename("Date.Time" = "Date/Time") %>% #rename date so that date and time could be seperated
+  mutate(Date.Time = as.POSIXct(Date.Time, format = "%m/%d/%Y %H:%M:%S"))
+  
 
-#convert time in 24 hour format
-combined_table$Time<- format (as.POSIXct(strptime(combined_table$Date_Time,"%m/%d/%Y %H:%M:%S")), format = "%H:%M:%S")
+#seperated day, date, month, hour, minute and second for futher analysis
+df_merged <- df_merged %>%
+  mutate(Day = factor(day(Date.Time)))%>%
+  mutate(Month = factor(month(Date.Time)))%>%
+  mutate(dayofweek = factor(wday(Date.Time)))%>%
+  mutate(Hour = factor(hour(Date.Time))) %>%
+  mutate(Minute = factor(minute(Date.Time))) %>%
+  mutate(Second = factor(second(Date.Time)))
 
-#seperated day, date, month and year
-combined_table$Day <- factor(day(combined_table$Date))
-combined_table$Month <- factor(month(combined_table$Date, label = TRUE))
-combined_table$Year <- factor(year(combined_table$Date))
-combined_table$dayofweek <- factor(wday(combined_table$Date, label = TRUE))
 
-#seperated hour, minutes and seconds
-combined_table$Hour <- factor(hour(hms(combined_table$Time)))
-combined_table$Minute <- factor(minute(hms(combined_table$Time)))
-combined_table$Second <- factor(second(hms(combined_table$Time)))
-
-#stacked and grouped graphs when asking for months
 #1. Pivot table to show Trips by the hour
-trip_hour <- combined_table%>%
+trip_hour <- df_merged%>%
   group_by(Hour)%>%
   dplyr::summarise(Total=n())
 
-# 3. Graph representation of Trips Every Hour
+#3. Graph representation of Trips Every Hour
 ggplot(trip_hour,aes(Hour,Total))+
   geom_bar(stat = "identity",fill="pink",color="gray")+
   ggtitle("Trips by the Hour")+
   theme(legend.position = "none",plot.title = element_text(hjust = 0.5))+
   scale_y_continuous(labels=comma)+xlab("Hour")+ylab("Total Trips")
 
-#2. Trips by Hour and Month
-trip_hour_month<- combined_table%>%
+#2.Trips by Hour and Month
+trip_hour_month<- df_merged%>%
   group_by(Month, Hour)%>%
   dplyr::summarise(Total=n())
 
-#Graph Representation(Chart)
+#Graph Representation 
 ggplot(trip_hour_month,aes(Hour, Total, fill = Month))+
   geom_bar(stat = "identity")+
   ggtitle("Trips by Hour and Month")+
@@ -66,18 +69,18 @@ ggplot(trip_hour_month,aes(Hour, Total, fill = Month))+
   scale_fill_manual(values = c("bisque4", "antiquewhite3", "cornsilk4", "darkolivegreen", "cadetblue4", "burlywood4"))
 
 
-#5. Table of trips taken during every day of the month
-trip_dayofweek_Month <- combined_table%>%
+#5.Table of trips taken during every day of the month
+trip_dayofweek_Month <- df_merged%>%
   group_by(Day)%>%
   dplyr::summarise(Total=n())
 
-#4. Graph Representation
+#4.Graph Representation
 ggplot(trip_dayofweek_Month,aes(x = Day,y= Total))+
   geom_point(size = 2, color= "deeppink3")+
   labs(title = "Trips taken every day", x= "Day of week", y = "Total Trip")
 
-#6. Trips by month
-trip_month <- combined_table%>%
+#6.Trips by month
+trip_month <- df_merged%>%
   group_by(Month)%>%
   dplyr::summarise(Total=n())
 
@@ -88,8 +91,8 @@ ggplot(trip_month,aes(Month, Total))+
   theme(legend.position = "none", plot.title = element_text(hjust = 0.5))+
   scale_y_continuous(labels = comma)+xlab("Month")+ylab("Total Trips")
 
-#6. Trips by Day and Month (bar chart with each day of the week, x axis as the month)
-trip_dayofweek_Month <- combined_table%>%
+#6.Trips by Day and Month (bar chart with each day of the week, x axis as the month)
+trip_dayofweek_Month <- df_merged%>%
   group_by(dayofweek, Month)%>%
   dplyr::summarise(Total=n())
 
@@ -101,8 +104,8 @@ ggplot(trip_dayofweek_Month, aes(Month, Total, fill= dayofweek))+
   scale_fill_manual(values = c("coral4", "seagreen", "goldenrod", "bisque2", "gray", "darkkhaki", "aquamarine4"))
 
 
-#7. Trips by Bases and Month (Base is the X axis and Month is your label)
-trip_base_month <- combined_table%>%
+#7.Trips by Bases and Month (Base is the X axis and Month is your label)
+trip_base_month <- df_merged%>%
   group_by(Base, Month)%>%
   dplyr::summarise(Total=n())
 
@@ -113,8 +116,8 @@ ggplot(trip_base_month, aes(Base, Total, fill= Month))+
   scale_y_continuous(labels = comma)+
   scale_fill_manual(values = c("orchid2", "orange4", "plum3", "seashell4", "skyblue4", "aquamarine4"))
 
-#8. Heat map that displays by hour and day
-trip_day_hour <- combined_table %>%
+#8.Heat map that displays by hour and day
+trip_day_hour <- df_merged %>%
   group_by(Day, Hour) %>%
   dplyr::summarize(Total = n())
 
@@ -124,8 +127,8 @@ ggplot(trip_day_hour, aes(Day, Hour, fill = Total)) +
   scale_fill_gradient(low = "pink", high = "red") +
   ggtitle("Heat Map by Hour and Day")
 
-#9. Heat map by month and day
-trip_month_day <- combined_table %>%
+#9.Heat map by month and day
+trip_month_day <- df_merged %>%
   group_by(Month, Day) %>%
   dplyr::summarize(Total = n())
 
@@ -141,11 +144,12 @@ ggplot(trip_dayofweek_Month, aes(Month, dayofweek, fill= Total))+
   scale_fill_gradient(low="palegreen", high="seagreen4")+
   ggtitle("Heat Map by Month and Week")
 
-#11. Heat map Bases and Day of Week
-trip_base_day <- combined_table %>%
+#11.Heat map Bases and Day of Week
+trip_base_day <- df_merged %>%
   group_by(Base, dayofweek) %>%
   dplyr::summarize(Total = n())
 
+#Heatmap
 ggplot(trip_base_day, aes(Base, dayofweek, fill= Total))+
   geom_tile(color="white")+
   scale_fill_gradient(low="deeppink", high="deeppink4")+
@@ -154,61 +158,55 @@ ggplot(trip_base_day, aes(Base, dayofweek, fill= Total))+
 #------Convert the Pivot table to excel for Shinny manipulations------------
 
 #1. Pivot table to show Trips by the hour
-trip_hour <- combined_table%>%
+trip_hour <- df_merged%>%
   group_by(Hour)%>%
   dplyr::summarise(Total=n())
-
-write_xlsx(trip_hour, path="~/Desktop/DATA/Data 332/UberProject/Files for Shinny/trip_per_hour.xlsx")
+fwrite(trip_hour, file = "~/Desktop/DATA/Data 332/UberProject/Files for Shinny/Trip Per Hour.csv")
 
 #2. Trips by Hour and Month
-trip_hour_month<- combined_table%>%
+trip_hour_month<- df_merged%>%
   group_by(Month, Hour)%>%
   dplyr::summarise(Total=n())
-
-write_xlsx(trip_hour_month,path = "~/Desktop/DATA/Data 332/UberProject/Files for Shinny/trip_by_hour_month.xlsx")
+fwrite(trip_hour_month,file = "~/Desktop/DATA/Data 332/UberProject/Files for Shinny/Trip By Hour And Month.csv")
 
 #3. Table of trips taken during every day of the month
-trip_dayofweek_Month <- combined_table%>%
-  group_by(Day)%>%
+trip_dayofweek_Month <- df_merged%>%
+  group_by(dayofweek, Month)%>%
   dplyr::summarise(Total=n())
-
-write_xlsx(trip_dayofweek_Month,path = "~/Desktop/DATA/Data 332/UberProject/Files for Shinny/trip_by_dayofWeek_month.xlsx")
+fwrite(trip_dayofweek_Month,file = "~/Desktop/DATA/Data 332/UberProject/Files for Shinny/Trip by DayofWeek And Month.csv")
 
 #4. Trips by month
-trip_month <- combined_table%>%
+trip_month <- df_merged%>%
   group_by(Month)%>%
   dplyr::summarise(Total=n())
 
-write_xlsx(trip_month,path = "~/Desktop/DATA/Data 332/UberProject/Files for Shinny/trip_by_month.xlsx")
+fwrite(trip_month,file = "~/Desktop/DATA/Data 332/UberProject/Files for Shinny/Trip by Month.csv")
 
 #5. Trips by Bases and Month 
-trip_base_month <- combined_table%>%
+trip_base_month <- df_merged%>%
   group_by(Base, Month)%>%
   dplyr::summarise(Total=n())
-write_xlsx(trip_base_month,path = "~/Desktop/DATA/Data 332/UberProject/Files for Shinny/trip_by_base_month.xlsx")
+fwrite(trip_base_month,file = "~/Desktop/DATA/Data 332/UberProject/Files for Shinny/Trip By Base and Month.csv")
 
 #6. Trips by day and hour
-trip_day_hour <- combined_table %>%
+trip_day_hour <- df_merged %>%
   group_by(Day, Hour) %>%
   dplyr::summarize(Total = n())
-write_xlsx(trip_day_hour,path = "~/Desktop/DATA/Data 332/UberProject/Files for Shinny/trip_by_day_hour.xlsx")
+fwrite(trip_day_hour,file = "~/Desktop/DATA/Data 332/UberProject/Files for Shinny/Trip By Day and Hour.csv")
 
 #7. Trips by month and day
-trip_month_day <- combined_table %>%
+trip_month_day <- df_merged %>%
   group_by(Month, Day) %>%
   dplyr::summarize(Total = n())
-write_xlsx(trip_month_day,path = "~/Desktop/DATA/Data 332/UberProject/Files for Shinny/trip_by_month_day.xlsx")
+fwrite(trip_month_day,file = "~/Desktop/DATA/Data 332/UberProject/Files for Shinny/Trip By Month and Day.csv")
+
 
 
 #8. Trips by Bases and Day of Week
-trip_base_day <- combined_table %>%
+trip_base_day <- df_merged %>%
   group_by(Base, dayofweek) %>%
   dplyr::summarize(Total = n())
-write_xlsx(trip_base_day,path = "~/Desktop/DATA/Data 332/UberProject/Files for Shinny/trip_by_base_day.xlsx")
-
-
-
-
+fwrite(trip_base_day,file = "~/Desktop/DATA/Data 332/UberProject/Files for Shinny/Trip By Base and Day.csv")
 
 
 
