@@ -5,10 +5,10 @@ account: stutishrestha21
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 8925709
-bundleId: 7123586
+bundleId: 7123727
 url: https://stutishrestha21.shinyapps.io/ShinnyUber/
-when: 1682231447.94778
-lastSyncTime: 1682231447.94781
+when: 1682236834.49141
+lastSyncTime: 1682236834.49142
 asMultiple: FALSE
 asStatic: FALSE
-ignoredFiles: .RData|Trip By Base and Day.csv|Trip By Base and Month.csv|Trip By Day and Hour.csv|Trip by DayofWeek And Month.csv|Trip By Hour And Month.csv|Trip By Month and Day.csv|Trip by Month.csv|Trip Per Hour.csv
+ignoredFiles: .RData

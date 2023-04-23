@@ -4,7 +4,11 @@ library(ggplot2)
 library(DT)
 library(tidyverse)
 library(rsconnect)
+library(DT)
+library(leaflet)
+library(leaflet.extras)
 
+getwd()
 #Read data that we fwrote in uber project
 df_base_day <- read.csv("Trip By Base and Day.csv")
 df_base_month <- read.csv("Trip By Base and Month.csv")
@@ -107,14 +111,15 @@ server <- function(input, output) {
         labs(title = "Interactive Bar Chart", x = "Hour", y = "Total") +
         theme_minimal()
     }
+    #Prediction to know which month has the highest number of people use uber after or at 6 pm.
     else if (input$data_select == "prediction") {
-      ggplot(trip_hour_month, aes(Month, Total)) +
+      ggplot(df_hour_month, aes(Month, Total)) +
         geom_point(
-          data = filter(trip_hour_month, rank(Hour) >= 18),
+          data = filter(df_hour_month, rank(Hour) >= 18),
           size = 4, color = "red") +
         geom_point(aes(colour = Hour))
     }
-    
+    #map to show chicago data
     else if (input$data_select == "map") {
       output$map <- renderLeaflet({
         leaflet() %>%
