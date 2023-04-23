@@ -210,3 +210,16 @@ fwrite(trip_base_day,file = "~/Desktop/DATA/Data 332/UberProject/Files for Shinn
 
 
 
+#---------------------------Prediction Model--------------------------------
+#Prediction to know which month has the highest number of people use uber after or at 6 pm. 
+ggplot(trip_hour_month, aes(Month, Total)) +
+  geom_point(
+    data = filter(trip_hour_month, rank(Hour) >= 18),
+    size = 4, color = "red" )+
+  geom_point(aes(colour = Hour))
+
+
+
+
+
+

@@ -1,10 +1,9 @@
+#libraries
 library(shiny)
 library(ggplot2)
 library(DT)
 library(tidyverse)
 library(rsconnect)
-
-getwd()
 
 #Read data that we fwrote in uber project
 df_base_day <- read.csv("Trip By Base and Day.csv")
@@ -21,11 +20,12 @@ ui <- fluidPage(
   titlePanel("Uber Trip Data"),
   sidebarLayout(
     sidebarPanel(
-      selectInput("data_select", "Select Data", choices = c("df_base_day", "df_base_month", "df_day_hour", "df_dayofweek_month", "df_hour_month", "df_month_day", "df_month", "df_hour"), selected = "df_base_day")
+      selectInput("data_select", "Select Data", choices = c("df_base_day", "df_base_month", "df_day_hour", "df_dayofweek_month", "df_hour_month", "df_month_day", "df_month", "df_hour","prediction","map"), selected = "df_base_day")
     ),
     mainPanel(
       plotOutput("bar_chart"),
-      DT::dataTableOutput("table")
+      DT::dataTableOutput("table"),
+      leafletOutput("map")
     )
   )
 )
@@ -44,7 +44,8 @@ server <- function(input, output) {
            "df_hour_month" = df_hour_month,
            "df_month_day" = df_month_day,
            "df_month" = df_month,
-           "df_hour" = df_hour)
+           "df_hour" = df_hour,
+           "prediction" = df_hour_month)
   })
   
   # Render bar chart
@@ -106,12 +107,31 @@ server <- function(input, output) {
         labs(title = "Interactive Bar Chart", x = "Hour", y = "Total") +
         theme_minimal()
     }
+    else if (input$data_select == "prediction") {
+      ggplot(trip_hour_month, aes(Month, Total)) +
+        geom_point(
+          data = filter(trip_hour_month, rank(Hour) >= 18),
+          size = 4, color = "red") +
+        geom_point(aes(colour = Hour))
+    }
+    
+    else if (input$data_select == "map") {
+      output$map <- renderLeaflet({
+        leaflet() %>%
+            setView(lng = -87.6298, lat = 41.8781, zoom = 10) %>%
+            addTiles() %>%
+            addMarkers(lng = -87.6298, lat = 41.8781, popup = "Chicago")
+      })
+    }
+    
   })
   
   # This gives the table and rows till 10
   output$table <- DT::renderDataTable({
-    DT::datatable(selected_data(), options = list(pageLength = 10))
+    DT::datatable(selected_data(), options = list(pageLength = 5))
   })
+  
+  
   
 }
 # Run the Shiny app

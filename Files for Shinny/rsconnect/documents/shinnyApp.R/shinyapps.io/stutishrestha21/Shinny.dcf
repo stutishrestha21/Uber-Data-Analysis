@@ -1,0 +1,14 @@
+name: Shinny
+title: Shinny
+username:
+account: stutishrestha21
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 8926059
+bundleId: 7123457
+url: https://stutishrestha21.shinyapps.io/Shinny/
+when: 1682228573.33956
+lastSyncTime: 1682228573.33958
+asMultiple: FALSE
+asStatic: FALSE
+ignoredFiles: Trip By Base and Day.csv|Trip By Base and Month.csv|Trip By Day and Hour.csv|Trip by DayofWeek And Month.csv|Trip By Hour And Month.csv|Trip By Month and Day.csv|Trip by Month.csv|Trip Per Hour.csv
