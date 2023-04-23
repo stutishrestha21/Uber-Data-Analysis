@@ -113,11 +113,10 @@ server <- function(input, output) {
     }
     #Prediction to know which month has the highest number of people use uber after or at 6 pm.
     else if (input$data_select == "prediction") {
-      ggplot(df_hour_month, aes(Month, Total)) +
-        geom_point(
-          data = filter(df_hour_month, rank(Hour) >= 18),
-          size = 4, color = "red") +
-        geom_point(aes(colour = Hour))
+      ggplot(df_hour_month, aes(x = Month, y = Total, color = factor(Hour > 18))) +
+        geom_point(size = 4) +
+        scale_color_manual(values = c("black", "red"), guide = FALSE) +
+        labs(color = "Hour > 18")
     }
     #map to show chicago data
     else if (input$data_select == "map") {

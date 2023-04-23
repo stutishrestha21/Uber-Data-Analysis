@@ -5,10 +5,10 @@ account: stutishrestha21
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 8925709
-bundleId: 7123727
+bundleId: 7123747
 url: https://stutishrestha21.shinyapps.io/ShinnyUber/
-when: 1682236834.49141
-lastSyncTime: 1682236834.49142
+when: 1682237447.66129
+lastSyncTime: 1682237447.66131
 asMultiple: FALSE
 asStatic: FALSE
 ignoredFiles: .RData
