@@ -1,5 +1,5 @@
 
-# Uber Data Analysis 🚙
+# Uber Data Analysis 🚘
 
 In this project I am going to analyse the data of Uber to see their pattern according to month, day and time. I will also use visualization which I will make using ggplot2 and shinny to see the pattern of their data. 
  
